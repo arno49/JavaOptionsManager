@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """ Shaper (CMDB tool)
-    Parse java properties to datastructure
-    and create properties from datastructure.
+    Parse properties&configs to datastructure
+    and create properties&configs from datastructure.
 
     Support ivan.bogomazov@gmail.com
     Minsk 2018
@@ -32,108 +32,8 @@ import os
 from collections import OrderedDict
 
 from shaper import lib
+from shaper import manager
 from shaper.lib.configi import FILE_TYPES
-
-
-class Shaper(object):
-    """Java options manager tool"""
-
-    @staticmethod
-    def walk_on_path(path):
-        """recursive find files with pattern"""
-        matches = []
-        for pattern, _ in FILE_TYPES.items():
-            for root, _dirnames, files in os.walk(path):
-                for filename in fnmatch.filter(files, '*{}'.format(pattern)):
-                    matches.append(os.path.join(root, filename))
-
-        return matches
-
-    @staticmethod
-    def read_properties(path_to_dir):
-        """interface for recursive read properties"""
-        data = {}
-        files = Shaper.walk_on_path(path_to_dir)
-
-        for filename in files:
-            data.update({
-                filename: lib.read(filename)
-            })
-
-        return data
-
-    @staticmethod
-    def create_folders(path_to_folder):
-        """recursive creating folders"""
-        try:
-            os.makedirs(path_to_folder)
-        except OSError:
-            if os.path.isdir(path_to_folder):
-                pass
-            else:
-                raise EOFError
-
-    @staticmethod
-    def write_properties(datastructure, out_path):
-        """interface for recursive write properties"""
-        for filename, properties in datastructure.items():
-            directories = os.path.join(
-                out_path,
-                os.path.dirname(filename)
-            )
-            property_file = os.path.basename(filename)
-            Shaper.create_folders(directories)
-            lib.write(
-                os.path.join(
-                    directories,
-                    property_file
-                ),
-                properties
-            )
-
-    @staticmethod
-    def forward_path_parser(_input):
-        """parsing plain dict to nested"""
-
-        def get_or_create_by_key(key, current_tree):
-            """update dict by key"""
-            if key not in current_tree:
-                last = keys.pop()
-                dict_update = {last: value}
-
-                for _key in reversed(keys):
-                    dict_update = {_key: dict_update}
-
-                current_tree.update(dict_update)
-            else:
-                keys.pop(0)
-                get_or_create_by_key(keys[0], current_tree[key])
-
-        output = {}
-        for key, value in OrderedDict(_input).items():
-            keys = key.split('/')
-
-            get_or_create_by_key(keys[0], output)
-
-        return output
-
-    @staticmethod
-    def backward_path_parser(_input):
-        """make nested structure plain"""
-
-        def path_builder(current_tree, key=''):
-            """make plain"""
-            for _key, _value in current_tree.items():
-                _key = key + '/' + _key if key else _key
-                if '.' in _key:
-                    output.update({_key: _value})
-                else:
-                    path_builder(_value, _key)
-
-        output = {}
-        path_builder(_input)
-
-        return output
 
 
 def parse_arguments():
@@ -166,6 +66,11 @@ def parse_arguments():
     write = subparsers.add_parser(
         "write",
         help="Write properties files from datastructure"
+    )
+
+    play = subparsers.add_parser(
+        "play",
+        help="Run playbook like ansible"
     )
 
     read.add_argument(
@@ -204,22 +109,22 @@ def parse_arguments():
         help='Key for rendering custom subtree. Default render from root',
     )
 
+    play.add_argument(
+        'src_path',
+        type=str,
+        help='Path to playbook',
+    )
+
     return parser.parse_args()
-
-
-def play():
-    """interface mock"""
-    pass
 
 
 def main():
     """main"""
     arguments = parse_arguments()
-    shaper = Shaper()
 
     if arguments.parser == "read":
-        tree = shaper.forward_path_parser(
-            shaper.read_properties(
+        tree = manager.forward_path_parser(
+            manager.read_properties(
                 arguments.src_path
             )
         )
@@ -228,7 +133,7 @@ def main():
 
     elif arguments.parser == "write":
         yaml_data = lib.read(arguments.src_structure)
-        datastructure = shaper.backward_path_parser(yaml_data)
+        datastructure = manager.backward_path_parser(yaml_data)
 
         # filter render files by key
         if arguments.key:
@@ -242,7 +147,7 @@ def main():
             print("==> Files to render :")
             print('\n'.join(datastructure.keys()))
 
-        shaper.write_properties(datastructure, arguments.out)
+        manager.write_properties(datastructure, arguments.out)
 
     else:
         raise NotImplementedError
