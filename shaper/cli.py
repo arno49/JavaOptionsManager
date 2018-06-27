@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" Java Options Manager
+""" Shaper (CMDB tool)
     Parse java properties to datastructure
     and create properties from datastructure.
 
@@ -28,107 +28,26 @@ from __future__ import print_function, unicode_literals
 import argparse
 import fnmatch
 import os
-import sys
 
 from collections import OrderedDict
-from io import StringIO
 
-import oyaml as yaml
-
-try:
-    UNICODE_EXISTS = bool(type(unicode))
-except NameError:
-    unicode = lambda s: str(s)
-
-try:
-    import ConfigParser
-except:
-    import configparser as ConfigParser
+from shaper import lib
+from shaper.lib.configi import FILE_TYPES
 
 
 class Shaper(object):
     """Java options manager tool"""
 
     @staticmethod
-    def dump_yaml(data, path_to_file):
-        """Dump datastructure to yaml
-
-        :param data: configuration dataset
-        :type data: dict
-
-        :param path_to_file: filepath
-        :type path_to_file: str
-
-        :return: None
-        :rtype: None
-
-        """
-        try:
-            with open(path_to_file, 'w') as outfile:
-                yaml.dump(
-                    data,
-                    outfile,
-                    default_flow_style=False,
-                    allow_unicode=True,
-                )
-
-        except OSError as error:
-            sys.stderr.write("Bad file path {0}: {1}".format(
-                path_to_file,
-                error
-            ))
-
-    @staticmethod
-    def read_yaml(path_to_file):
-        """YAML read
-        :param path_to_file: path to yaml file
-        :type path_to_file: str
-
-        :return: yaml datastructure
-        :rtype: dict
-        """
-        try:
-            with open(path_to_file, 'r') as _fp:
-                return yaml.load(
-                    _fp,
-                )
-
-        except ValueError as error:
-            sys.stderr.write("Bad format {0}: {1}".format(
-                path_to_file,
-                error
-            ))
-
-        except OSError as error:
-            sys.stderr.write("Bad file {0}: {1}".format(
-                path_to_file,
-                error
-            ))
-
-    @staticmethod
-    def walk_on_path(path, pattern='*.properties'):
+    def walk_on_path(path):
         """recursive find files with pattern"""
         matches = []
-        for root, _dirnames, files in os.walk(path):
-            for filename in fnmatch.filter(files, pattern):
-                matches.append(os.path.join(root, filename))
+        for pattern, _ in FILE_TYPES.items():
+            for root, _dirnames, files in os.walk(path):
+                for filename in fnmatch.filter(files, '*{}'.format(pattern)):
+                    matches.append(os.path.join(root, filename))
 
         return matches
-
-    @staticmethod
-    def read_properties_file(path_to_file):
-        """read ini properties"""
-        with open(path_to_file, 'rb') as properties_file:
-
-            config = StringIO()
-            config.write(u'[dummy_section]\n')
-            config.write(properties_file.read().decode().replace('%', '%%'))
-            config.seek(0, os.SEEK_SET)
-
-            conf_parser = ConfigParser.SafeConfigParser()
-            conf_parser.readfp(config)
-
-            return OrderedDict(conf_parser.items('dummy_section'))
 
     @staticmethod
     def read_properties(path_to_dir):
@@ -138,19 +57,10 @@ class Shaper(object):
 
         for filename in files:
             data.update({
-                filename: Shaper.read_properties_file(filename)
+                filename: lib.read(filename)
             })
 
         return data
-
-    @staticmethod
-    def write_properties_file(path_to_file, datastructure):
-        """write kv ini like style"""
-        with open(path_to_file, "wb") as properties_file:
-            for key, value in datastructure.items():
-                properties_file.write(
-                    "{}={}\n".format(key, value).encode()
-                )
 
     @staticmethod
     def create_folders(path_to_folder):
@@ -173,7 +83,7 @@ class Shaper(object):
             )
             property_file = os.path.basename(filename)
             Shaper.create_folders(directories)
-            Shaper.write_properties_file(
+            lib.write(
                 os.path.join(
                     directories,
                     property_file
@@ -308,11 +218,16 @@ def main():
     shaper = Shaper()
 
     if arguments.parser == "read":
-        tree = shaper.forward_path_parser(shaper.read_properties(arguments.src_path))
-        shaper.dump_yaml(tree, arguments.out)
+        tree = shaper.forward_path_parser(
+            shaper.read_properties(
+                arguments.src_path
+            )
+        )
+
+        lib.write(arguments.out, tree)
 
     elif arguments.parser == "write":
-        yaml_data = shaper.read_yaml(arguments.src_structure)
+        yaml_data = lib.read(arguments.src_structure)
         datastructure = shaper.backward_path_parser(yaml_data)
 
         # filter render files by key
