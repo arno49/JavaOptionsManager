@@ -34,6 +34,7 @@ from collections import OrderedDict
 from shaper import lib
 from shaper import manager
 from shaper.lib.configi import FILE_TYPES
+from shaper.renderer import render_template
 
 
 def parse_arguments():
@@ -122,7 +123,15 @@ def main():
     """main"""
     arguments = parse_arguments()
 
-    if arguments.parser == "read":
+    if arguments.parser == "play":
+        playbook = lib.read(arguments.src_path)
+        context = playbook.get("variables", {})
+        templates = playbook.get("templates", [])
+
+        for template in templates:
+            print(render_template(template, context))
+
+    elif arguments.parser == "read":
         tree = manager.forward_path_parser(
             manager.read_properties(
                 arguments.src_path
