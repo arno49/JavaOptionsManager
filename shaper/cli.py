@@ -35,7 +35,7 @@ from shaper import lib
 from shaper import manager
 from shaper.lib.configi import FILE_TYPES
 from shaper.renderer import render_template
-
+from shaper.renderer import merge_templates
 
 def parse_arguments():
     """Argument parsing
@@ -127,9 +127,12 @@ def main():
         playbook = lib.read(arguments.src_path)
         context = playbook.get("variables", {})
         templates = playbook.get("templates", [])
+        template_dir = os.path.dirname(arguments.src_path)
+        rendered_templates = []
 
         for template in templates:
-            print(render_template(template, context))
+            rendered_templates.append(render_template(template, context))
+        merge_templates(rendered_templates, template_dir)
 
     elif arguments.parser == "read":
         tree = manager.forward_path_parser(

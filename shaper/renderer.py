@@ -4,6 +4,7 @@ from __future__ import print_function, unicode_literals
 
 import fnmatch
 import os
+import yaml
 
 from collections import OrderedDict
 
@@ -34,3 +35,12 @@ def render_template(template_path, context):
     env.globals.update(context)
     template = env.get_template(os.path.basename(template_path))
     return template.render()
+
+
+def merge_templates(rendered_templates, template_dir):
+    dict_base = {}
+    for var in rendered_templates:
+        dict_base.update(yaml.safe_load(var))
+    with open(os.path.join(template_dir, 'templates.yaml'), 'w') as f:
+        yaml.dump(dict_base, f, default_flow_style=False)
+
