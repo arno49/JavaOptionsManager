@@ -36,6 +36,7 @@ from shaper import manager
 from shaper.lib.configi import FILE_TYPES
 from shaper.renderer import render_template, generate_playbook
 from shaper.renderer import merge_templates
+from shaper.manager import backward_path_parser
 
 def parse_arguments():
     """Argument parsing
@@ -117,6 +118,14 @@ def parse_arguments():
     )
 
     play.add_argument(
+        '-o',
+        '--out',
+        dest='out',
+        default='./out/',
+        help='Path to output directory. Default ./out/',
+    )
+
+    play.add_argument(
         '--action',
         type=str,
         choices=['generate', 'render'],
@@ -145,7 +154,11 @@ def main():
 
             for template in templates:
                 rendered_templates.append(render_template(template, context))
-            merge_templates(rendered_templates, template_dir)
+            dict_base = merge_templates(rendered_templates, template_dir)
+
+
+            datastructure = backward_path_parser(dict_base)
+            manager.write_properties(datastructure, arguments.out)
 
     elif arguments.parser == "read":
         tree = manager.forward_path_parser(
@@ -158,7 +171,7 @@ def main():
 
     elif arguments.parser == "write":
         yaml_data = lib.read(arguments.src_structure)
-        datastructure = manager.backward_path_parser(yaml_data)
+        datastructure = backward_path_parser(yaml_data)
 
         # filter render files by key
         if arguments.key:

@@ -17,7 +17,6 @@ from jinja2 import Environment, FileSystemLoader, Template
 
 def generate_playbook(property_path):
     configs = read_properties(property_path)
-    print(configs)
     properties = defaultdict(list)
     for conf_file in configs:
         for property_name in configs[conf_file]:
@@ -43,21 +42,24 @@ def generate_playbook(property_path):
                              lambda dumper, data: dumper.represent_mapping('tag:yaml.org,2002:map', data.items()))
 
         yaml.dump(playbook, f, default_flow_style=False)
-    temp = {}
-    temp2 = {}
-    temp3 = {}
+    temp = OrderedDict()
+    temp2 = OrderedDict()
+    temp3 = OrderedDict()
     for conf_file in local_var.keys():
         temp[conf_file] = {}
         temp2[conf_file] = {}
         temp3[conf_file] = {}
         for var in local_var[conf_file].keys():
             temp[conf_file][var] = "{{ local_vars[\"%s\"][\"%s\"] }}" % (conf_file, var)
+        temp_1 = OrderedDict(sorted(temp[conf_file].items()))
+        temp[conf_file] = temp_1
         for var in global_vars.keys():
             temp2[conf_file][var] = "{{ global_vars[\"%s\"] }}" % var
+    new_temp = OrderedDict(sorted(temp.items()))
     with open('globals.yml', 'w') as f:
         yaml.dump(temp2, f, default_flow_style=False)
     with open('locals.yml', 'w') as f:
-        yaml.dump(temp, f, default_flow_style=False)
+        yaml.dump(new_temp, f, default_flow_style=False)
     with open('custom.yml', 'w') as f:
         yaml.dump(temp3, f, default_flow_style=False)
 
@@ -93,6 +95,5 @@ def merge_templates(rendered_templates, template_dir):
             if conf_name not in dict_base:
                 dict_base[conf_name] = {}
             dict_base[conf_name].update(template[conf_name])
-    with open(os.path.join(template_dir, 'templates_all.yaml'), 'w') as f:
-        yaml.dump(dict_base, f, default_flow_style=False)
+    return dict_base
 
