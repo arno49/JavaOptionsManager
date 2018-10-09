@@ -1,16 +1,65 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import print_function, unicode_literals
+from __future__ import print_function
 
 import fnmatch
 import os
+import yaml
 
-from collections import OrderedDict
+from collections import defaultdict, OrderedDict
 
 from shaper import lib
 from shaper.lib.configi import FILE_TYPES
+from shaper.manager import read_properties
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, Template
+
+
+def generate_playbook(property_path):
+    configs = read_properties(property_path)
+    print(configs)
+    properties = defaultdict(list)
+    for conf_file in configs:
+        for property_name in configs[conf_file]:
+            property_value = configs[conf_file][property_name]
+            if property_value not in properties[property_name]:
+                properties[property_name].append(property_value)
+    global_vars = {}
+    for k, v in properties.items():
+        if len(v) == 1:
+            global_vars[k] = v[0]
+    local_var = {}
+    for conf_file in configs:
+        local_var[conf_file] = {}
+        for property_name in configs[conf_file]:
+            property_value = configs[conf_file][property_name]
+            if property_name not in global_vars.keys():
+                local_var[conf_file][property_name] = property_value
+    playbook = OrderedDict({'templates': ['globals.yml', 'locals.yml', 'custom.yml'],
+                            'variables': {'global_vars': global_vars,
+                                          'local_vars': local_var}})
+    with open('playbook.yml', 'w') as f:
+        yaml.add_representer(OrderedDict,
+                             lambda dumper, data: dumper.represent_mapping('tag:yaml.org,2002:map', data.items()))
+
+        yaml.dump(playbook, f, default_flow_style=False)
+    temp = {}
+    temp2 = {}
+    temp3 = {}
+    for conf_file in local_var.keys():
+        temp[conf_file] = {}
+        temp2[conf_file] = {}
+        temp3[conf_file] = {}
+        for var in local_var[conf_file].keys():
+            temp[conf_file][var] = "{{ local_vars[\"%s\"][\"%s\"] }}" % (conf_file, var)
+        for var in global_vars.keys():
+            temp2[conf_file][var] = "{{ global_vars[\"%s\"] }}" % var
+    with open('globals.yml', 'w') as f:
+        yaml.dump(temp2, f, default_flow_style=False)
+    with open('locals.yml', 'w') as f:
+        yaml.dump(temp, f, default_flow_style=False)
+    with open('custom.yml', 'w') as f:
+        yaml.dump(temp3, f, default_flow_style=False)
 
 
 def render_template(template_path, context):
@@ -34,3 +83,16 @@ def render_template(template_path, context):
     env.globals.update(context)
     template = env.get_template(os.path.basename(template_path))
     return template.render()
+
+
+def merge_templates(rendered_templates, template_dir):
+    dict_base = {}
+    for template in rendered_templates:
+        template = yaml.safe_load(template)
+        for conf_name in template:
+            if conf_name not in dict_base:
+                dict_base[conf_name] = {}
+            dict_base[conf_name].update(template[conf_name])
+    with open(os.path.join(template_dir, 'templates_all.yaml'), 'w') as f:
+        yaml.dump(dict_base, f, default_flow_style=False)
+

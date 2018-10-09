@@ -29,7 +29,7 @@ def read_properties(path_to_dir):
 
     for filename in files:
         data.update({
-            filename: lib.read(filename)
+            os.path.split(filename)[-1]: lib.read(filename)
         })
 
     return data

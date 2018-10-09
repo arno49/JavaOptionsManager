@@ -34,8 +34,8 @@ from collections import OrderedDict
 from shaper import lib
 from shaper import manager
 from shaper.lib.configi import FILE_TYPES
-from shaper.renderer import render_template
-
+from shaper.renderer import render_template, generate_playbook
+from shaper.renderer import merge_templates
 
 def parse_arguments():
     """Argument parsing
@@ -116,6 +116,16 @@ def parse_arguments():
         help='Path to playbook',
     )
 
+    play.add_argument(
+        '--action',
+        type=str,
+        choices=['generate', 'render'],
+        help='''Choice action:
+generate - to generate playbook.yml with templates
+render - to render all templates into property files
+        '''
+    )
+
     return parser.parse_args()
 
 
@@ -124,12 +134,18 @@ def main():
     arguments = parse_arguments()
 
     if arguments.parser == "play":
-        playbook = lib.read(arguments.src_path)
-        context = playbook.get("variables", {})
-        templates = playbook.get("templates", [])
+        if arguments.action == 'generate':
+            generate_playbook(arguments.src_path)
+        elif arguments.action == 'render':
+            playbook = lib.read(arguments.src_path)
+            context = playbook.get("variables", {})
+            templates = playbook.get("templates", [])
+            template_dir = os.path.dirname(arguments.src_path)
+            rendered_templates = []
 
-        for template in templates:
-            print(render_template(template, context))
+            for template in templates:
+                rendered_templates.append(render_template(template, context))
+            merge_templates(rendered_templates, template_dir)
 
     elif arguments.parser == "read":
         tree = manager.forward_path_parser(
