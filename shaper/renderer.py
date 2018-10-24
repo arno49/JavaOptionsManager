@@ -23,20 +23,24 @@ def generate_playbook(property_path):
             property_value = configs[conf_file][property_name]
             if property_value not in properties[property_name]:
                 properties[property_name].append(property_value)
-    global_vars = {}
+    global_vars = OrderedDict()
     for k, v in properties.items():
         if len(v) == 1:
             global_vars[k] = v[0]
-    local_var = {}
+    global_vars2 = OrderedDict(sorted(global_vars.items()))
+    local_var = OrderedDict()
     for conf_file in configs:
         local_var[conf_file] = {}
         for property_name in configs[conf_file]:
             property_value = configs[conf_file][property_name]
             if property_name not in global_vars.keys():
                 local_var[conf_file][property_name] = property_value
+        new_local_var = OrderedDict(sorted(local_var[conf_file].items()))
+        local_var[conf_file] = new_local_var
+    new_local_var_2 = OrderedDict(sorted(local_var.items()))
     playbook = OrderedDict({'templates': ['globals.yml', 'locals.yml', 'custom.yml'],
-                            'variables': {'global_vars': global_vars,
-                                          'local_vars': local_var}})
+                            'variables': {'global_vars': global_vars2,
+                                          'local_vars': new_local_var_2}})
     with open('playbook.yml', 'w') as f:
         yaml.add_representer(OrderedDict,
                              lambda dumper, data: dumper.represent_mapping('tag:yaml.org,2002:map', data.items()))
@@ -55,9 +59,12 @@ def generate_playbook(property_path):
         temp[conf_file] = temp_1
         for var in global_vars.keys():
             temp2[conf_file][var] = "{{ global_vars[\"%s\"] }}" % var
+        temp_2 = OrderedDict(sorted(temp2[conf_file].items()))
+        temp2[conf_file] = temp_2
     new_temp = OrderedDict(sorted(temp.items()))
+    new_temp2 = OrderedDict(sorted(temp2.items()))
     with open('globals.yml', 'w') as f:
-        yaml.dump(temp2, f, default_flow_style=False)
+        yaml.dump(new_temp2, f, default_flow_style=False)
     with open('locals.yml', 'w') as f:
         yaml.dump(new_temp, f, default_flow_style=False)
     with open('custom.yml', 'w') as f:
