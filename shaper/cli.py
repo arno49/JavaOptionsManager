@@ -26,14 +26,12 @@
 from __future__ import print_function
 
 import argparse
-import fnmatch
 import os
 
 from collections import OrderedDict
 
 from shaper import lib
 from shaper import manager
-from shaper.lib.configi import FILE_TYPES
 from shaper.renderer import render_template
 from shaper.renderer import merge_templates
 
