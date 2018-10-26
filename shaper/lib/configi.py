@@ -264,6 +264,13 @@ def type_choise(path_to_file):
     extension = os.path.splitext(path_to_file)[-1]
     if extension in FILE_TYPES:
         return FILE_TYPES.get(extension)
+    else:
+        print(
+            "Unknown file extension in {}".format(
+                path_to_file
+            )
+        )
+        return None, None
 
 
 def read(path_to_file, file_type="auto"):
@@ -285,7 +292,10 @@ def read(path_to_file, file_type="auto"):
     else:
         parser = FILE_TYPES.get(file_type)
 
-    return parser(path_to_file)
+    if parser:
+        return parser(path_to_file)
+    else:
+        return "Unsupported file extension"
 
 
 def write(path_to_file, data, file_type="auto"):
