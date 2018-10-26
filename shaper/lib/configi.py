@@ -293,7 +293,20 @@ def read(path_to_file, file_type="auto"):
         parser = FILE_TYPES.get(file_type)
 
     if parser:
-        return parser(path_to_file)
+        try:
+            return parser(path_to_file)
+
+        except Exception, e:
+            except_message = "Failed to parse {}".format(
+                os.path.abspath(path_to_file)
+            )
+
+            print "{}\n{}".format(
+                except_message,
+                e
+            )
+            return except_message
+
     else:
         return "Unsupported file extension"
 
