@@ -45,7 +45,7 @@ except ImportError:
     import configparser as ConfigParser
 
 
-class OrderedDictYAMLLoader(yaml.Loader):
+class OrderedDictYAMLLoader(yaml.Loader): # pylint: disable=too-many-ancestors
     """
     A YAML loader that loads mappings into ordered dictionaries.
     """
