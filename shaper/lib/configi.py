@@ -176,7 +176,7 @@ def write_yaml(path_to_file, data):
 
     """
     yaml.add_representer(OrderedDict, represent_ordereddict)
-    
+
     content = yaml.dump(
         data,
         default_flow_style=False,
