@@ -95,6 +95,18 @@ class OrderedDictYAMLLoader(yaml.Loader):  # pylint: disable=too-many-ancestors
         return mapping
 
 
+def represent_ordereddict(dumper, data):
+    value = []
+
+    for item_key, item_value in data.items():
+        node_key = dumper.represent_data(item_key)
+        node_value = dumper.represent_data(item_value)
+
+        value.append((node_key, node_value))
+
+    return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', value)
+
+
 def read_plain_text(path_to_file):
     """
     Read plaintext file
@@ -163,6 +175,8 @@ def write_yaml(path_to_file, data):
     :rtype: None
 
     """
+    yaml.add_representer(OrderedDict, represent_ordereddict)
+    
     content = yaml.dump(
         data,
         default_flow_style=False,
