@@ -110,6 +110,14 @@ def represent_ordereddict(dumper, data):
     return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', value)
 
 
+def represent_unicode(dumper, uni):  # pylint: disable=unused-argument
+    """
+    Function for unicode representation
+    """
+    node = yaml.ScalarNode(tag=u'tag:yaml.org,2002:str', value=uni)
+    return node
+
+
 def read_plain_text(path_to_file):
     """
     Read plaintext file
@@ -179,6 +187,7 @@ def write_yaml(path_to_file, data):
 
     """
     yaml.add_representer(OrderedDict, represent_ordereddict)
+    yaml.add_representer(unicode, represent_unicode)
 
     content = yaml.dump(
         data,
