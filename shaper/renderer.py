@@ -9,7 +9,10 @@ import yaml
 from jinja2 import Environment, FileSystemLoader, Undefined
 
 
-class IgnoreUndefinedAttr(Undefined):
+class IgnoreUndefinedAttr(Undefined):  # pylint: disable=too-few-public-methods
+    """
+    Class for ignoring undefined attributes
+    """
     def __getattr__(self, name):
         return None
 

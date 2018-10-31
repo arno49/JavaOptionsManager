@@ -96,6 +96,9 @@ class OrderedDictYAMLLoader(yaml.Loader):  # pylint: disable=too-many-ancestors
 
 
 def represent_ordereddict(dumper, data):
+    """
+    Function for Ordered Dictionary representation
+    """
     value = []
 
     for item_key, item_value in data.items():
