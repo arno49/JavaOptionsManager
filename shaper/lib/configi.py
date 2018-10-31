@@ -187,13 +187,17 @@ def write_yaml(path_to_file, data):
 
     """
     yaml.add_representer(OrderedDict, represent_ordereddict)
-    yaml.add_representer(unicode, represent_unicode)
+    if sys.version_info[0] == 2:
+        yaml.add_representer(unicode, represent_unicode)
 
     content = yaml.dump(
         data,
         default_flow_style=False,
         allow_unicode=True,
     )
+
+    if sys.version_info[0] == 3:
+        content = bytearray(content, 'utf-8')
 
     write_plain_text(path_to_file, content)
 
