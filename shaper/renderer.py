@@ -13,6 +13,7 @@ class IgnoreUndefinedAttr(Undefined):
     def __getattr__(self, name):
         return None
 
+
 def render_template(template_path, context):
     """
     Render template interface
