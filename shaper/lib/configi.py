@@ -173,7 +173,7 @@ def read_yaml(path_to_file):
     return yaml.load(read_plain_text(path_to_file), OrderedDictYAMLLoader)
 
 
-def write_yaml(path_to_file, data):  # pylint: disable=undefined-variable
+def write_yaml(path_to_file, data):
     """Dump datastructure to yaml
 
     :param path_to_file: filepath
@@ -188,7 +188,10 @@ def write_yaml(path_to_file, data):  # pylint: disable=undefined-variable
     """
     yaml.add_representer(OrderedDict, represent_ordereddict)
     if sys.version_info[0] == 2:
-        yaml.add_representer(unicode, represent_unicode)
+        yaml.add_representer(
+            unicode,  # pylint: disable=undefined-variable
+            represent_unicode
+        )
 
     content = yaml.dump(
         data,
