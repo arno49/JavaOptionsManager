@@ -188,7 +188,7 @@ def write_yaml(path_to_file, data):
     """
     yaml.add_representer(OrderedDict, represent_ordereddict)
     if sys.version_info[0] == 2:
-        yaml.add_representer(unicode, represent_unicode)
+        yaml.add_representer(unicode, represent_unicode)  # pylint: disable=undefined-variable
 
     content = yaml.dump(
         data,
