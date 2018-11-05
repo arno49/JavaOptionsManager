@@ -1,4 +1,4 @@
-from pathlib import Path
+from path import Path
 
 
 def find_git_root(folder):

@@ -59,7 +59,7 @@ class BaseParser(object):
 
         return PARSERS_MAPPING.get(ext)
 
-    def read(self, path):
+    def read(self, path):  # pylint: disable=inconsistent-return-statements
         """Read file data structure according its type. Default type choose
         dynamic with magic function.
 
@@ -101,7 +101,6 @@ class BaseParser(object):
             parser_class().write(data, path)
         else:
             sys.stderr.write(self.WARNING_MESSAGE.format(file=path))
-
 
 
 class TextParser(object):
