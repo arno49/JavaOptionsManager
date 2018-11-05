@@ -16,7 +16,7 @@ def walk_on_path(path):
 
     for root, _, files in os.walk(path):
         for pattern in libs.PARSERS_MAPPING:
-            for filename in fnmatch.filter(files, '*{}'.format(pattern)):
+            for filename in fnmatch.filter(files, '*{ext}'.format(ext=pattern)):  # noqa
                 yield os.path.join(root, filename)
 
 
