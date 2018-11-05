@@ -295,8 +295,11 @@ class PropertyParser(TextParser):
         :rtype: None
         """
 
+        stream = '\n'.join(
+            '{}={}'.format(item[0], item[1]) for item in data.items(),
+        )
         super(PropertyParser, self).write(
-            '\n'.join(['{}={}'.format(item[0], item[1]) for item in data.items()]),  # noqa
+            stream.encode(encoding='utf-8'),
             path,
         )
 
