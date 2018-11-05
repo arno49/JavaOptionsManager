@@ -1,5 +1,5 @@
-from mock import patch
 import os
+
 from shaper import manager
 
 
@@ -8,6 +8,7 @@ def test_create_folder():
     dir_name = 'test_folder'
     manager.create_folders(dir_name)
     assert os.path.isdir(dir_name)
+    os.remove(dir_name)
 
 
 def test_read_properties():
