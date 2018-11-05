@@ -45,6 +45,7 @@ coverage.xml
 *.cover
 .hypothesis/
 tests/assets/output/test_run.yml
+tests/assets/output/tests/*
 
 # Translations
 *.mo
