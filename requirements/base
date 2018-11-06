@@ -1,4 +1,3 @@
-dicttoxml==1.7.4
 Jinja2==2.10
 pyyaml==3.13
 versioneer==0.18

@@ -33,10 +33,10 @@ try:
 except ImportError:
     from io import StringIO
 
-import dicttoxml
 import xmltodict
 import yaml
 
+from . import dict_to_xml
 from .loader import (
     OrderedDictYAMLLoader,
     represent_ordered_dict,
@@ -245,8 +245,10 @@ class XMLParser(TextParser):
         """
 
         dom = parseString(
-            dicttoxml.dicttoxml(
+            dict_to_xml.dicttoxml(
                 data,
+                fold_list=False,
+                item_func=lambda x: x,
                 attr_type=False,
                 root=False,
             ),
