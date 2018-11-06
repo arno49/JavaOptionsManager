@@ -36,7 +36,7 @@ except ImportError:
 import xmltodict
 import yaml
 
-from . import dict_to_xml
+from . import dicttoxml
 from .loader import (
     OrderedDictYAMLLoader,
     represent_ordered_dict,
@@ -77,9 +77,9 @@ class BaseParser(object):
             # disable cause of list of exceptions
             # not known due to a lot of parsers
             except Exception as exc:
-                msg = 'Failed to parse {file}'.format(file=os.path.abspath(path))  # noqa
+                msg = 'Failed to parse {file}'.format(file=os.path.abspath(path))
                 sys.stderr.write(
-                    '{message}\n{exception}'.format(message=msg, exception=exc),  # noqa
+                    '{message}\n{exception}'.format(message=msg, exception=exc),
                 )
 
         sys.stderr.write(self.WARNING_MESSAGE.format(file=path))
@@ -139,7 +139,7 @@ class TextParser(object):
 
         except (ValueError, OSError, IOError) as exc:
             sys.stderr.write(
-                'Failed to write {file}: {msg}'.format(file=path, msg=str(exc)),  # noqa
+                'Failed to write {file}: {msg}'.format(file=path, msg=str(exc)),
             )
 
 
@@ -211,13 +211,14 @@ class JSONParser(TextParser):
         :rtype: None
         """
 
+        kw = {'encoding': 'utf-8'} if sys.version_info[0] == 2 else {}
         with open(path, 'w') as fd:
             json.dump(
                 data,
                 fd,
                 indent=4,
                 separators=(',', ': '),
-                encoding='utf-8',
+                **kw
             )
 
 
@@ -245,7 +246,7 @@ class XMLParser(TextParser):
         """
 
         dom = parseString(
-            dict_to_xml.dicttoxml(
+            dicttoxml.dict_to_xml(
                 data,
                 fold_list=False,
                 item_func=lambda x: x,
@@ -315,5 +316,5 @@ PARSERS_MAPPING = {
     '.xml': XMLParser,
     '.properties': PropertyParser,
     '.txt': TextParser,
-    # '': TextParser,
+    # '': TextParser, TODO: think about how to parse files without extension
 }
