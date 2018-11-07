@@ -2,8 +2,7 @@ import os
 import shutil
 from collections import OrderedDict
 
-from shaper import manager
-from shaper import libs
+from shaper import manager, libs
 
 
 def test_create_folder():
