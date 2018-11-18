@@ -88,6 +88,12 @@ def forward_path_parser(_input):
 def backward_path_parser(_input):
     """Make nested structure plain."""
 
+    if not isinstance(_input, OrderedDict):
+        UserWarning(
+            "If the input datastructure is a regular dict, python 2.7 doesn't "
+            "guarantee the right keys ordering. Use `OrderedDict` instead",
+        )
+
     def path_builder(current_tree, key=''):
         """make plain"""
         for _key, _value in current_tree.items():

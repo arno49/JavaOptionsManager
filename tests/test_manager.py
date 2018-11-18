@@ -48,17 +48,21 @@ def test_forward_path_parser():
 
 
 def test_backward_path_parser():
-    datastructure = {
-        'a': {
-            'c4.py': 'c4',
-            'd': {'c3.py': 'c3'},
-            'b': {'c2.py': 'c2', 'c1.py': 'c1'},
-        },
-        'g': {
-            'c5.py': 'c5',
-            'e': {'c6.py': 'c6'},
-        },
-    }
+    datastructure = OrderedDict(
+        [
+            (
+                'a',
+                OrderedDict(
+                    [
+                        ('c4.py', 'c4'),
+                        ('d', OrderedDict([('c3.py', 'c3')])),
+                        ('b', OrderedDict([('c2.py', 'c2'), ('c1.py', 'c1')])),
+                    ],
+                ),
+            ),
+            ('g', OrderedDict([('c5.py', 'c5'), ('e', OrderedDict([('c6.py', 'c6')]))])),
+        ],
+    )
 
     expected = OrderedDict(
         [
