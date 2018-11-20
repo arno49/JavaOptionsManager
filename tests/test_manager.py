@@ -24,12 +24,12 @@ def test_read_properties(test_assets_root):
 
 def test_forward_path_parser():
     datastructure = {
-        'a/b/c1': 'c1',
-        'a/b/c2': 'c2',
-        'a/d/c3': 'c3',
-        'a/c4': 'c4',
-        'g/c5': 'c5',
         'g/e/c6': 'c6',
+        'a/d/c3': 'c3',
+        'a/b/c1': 'c1',
+        'a/c4': 'c4',
+        'a/b/c2': 'c2',
+        'g/c5': 'c5',
     }
 
     expected = {
@@ -64,16 +64,14 @@ def test_backward_path_parser():
         ],
     )
 
-    expected = OrderedDict(
-        [
-            ('a/c4.py', 'c4'),
-            ('a/d/c3.py', 'c3'),
-            ('a/b/c2.py', 'c2'),
-            ('a/b/c1.py', 'c1'),
-            ('g/c5.py', 'c5'),
-            ('g/e/c6.py', 'c6'),
-        ],
-    )
+    expected = {
+        'a/b/c1.py': 'c1',
+        'a/b/c2.py': 'c2',
+        'a/c4.py': 'c4',
+        'a/d/c3.py': 'c3',
+        'g/c5.py': 'c5',
+        'g/e/c6.py': 'c6',
+    }
 
     assert expected == manager.backward_path_parser(datastructure)
 
