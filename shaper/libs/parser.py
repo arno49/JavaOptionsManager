@@ -176,6 +176,13 @@ class YAMLParser(TextParser):
                 represent_unicode,
             )
 
+        # string representer for multi line issue
+        def str_presenter(dumper, data):
+            if len(data.splitlines()) > 1:  # check for multi line string
+                return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
+            return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+        yaml.add_representer(str, str_presenter)
+
         content = yaml.dump(
             data,
             default_flow_style=False,
