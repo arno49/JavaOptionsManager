@@ -267,6 +267,12 @@ class XMLParser(TextParser):
 
 class PropertyParser(TextParser):
 
+    @staticmethod
+    def __process_multiline_string(string):
+        if len(string.splitlines()) > 1:
+            return "\n   ".join(string.splitlines())
+        return string
+
     def read(self, path):
         """PROPERTY read.
 
@@ -306,7 +312,7 @@ class PropertyParser(TextParser):
         """
 
         stream = '\n'.join(
-            '{}={}'.format(item[0], item[1]) for item in data.items(),
+            '{}={}'.format(item[0], self.__process_multiline_string(item[1])) for item in data.items(),
         )
         super(PropertyParser, self).write(
             stream.encode(encoding='utf-8'),
