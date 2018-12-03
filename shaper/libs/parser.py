@@ -41,6 +41,7 @@ from .loader import (
     OrderedDictYAMLLoader,
     represent_ordered_dict,
     represent_unicode,
+    represent_multi_line,
 )
 
 
@@ -176,12 +177,8 @@ class YAMLParser(TextParser):
                 represent_unicode,
             )
 
-        # string representer for multi line issue
-        def str_presenter(dumper, data):
-            if len(data.splitlines()) > 1:  # check for multi line string
-                return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
-            return dumper.represent_scalar('tag:yaml.org,2002:str', data)
-        yaml.add_representer(str, str_presenter)
+        # add string representer for multi line issue
+        yaml.add_representer(str, represent_multi_line)
 
         content = yaml.dump(
             data,
@@ -268,9 +265,10 @@ class XMLParser(TextParser):
 class PropertyParser(TextParser):
 
     @staticmethod
-    def __process_multiline_string(string):
-        if len(string.splitlines()) > 1:
-            return "\n  ".join(string.splitlines())
+    def _process_multiline_string(string):
+        string_splitted = string.splitlines()
+        if len(string_splitted) > 1:
+            return "\n  ".join(string_splitted)
         return string
 
     def read(self, path):
@@ -312,7 +310,7 @@ class PropertyParser(TextParser):
         """
 
         stream = '\n'.join(
-            '{}={}'.format(item[0], self.__process_multiline_string(item[1])) for item in data.items(),
+            '{}={}'.format(item[0], self._process_multiline_string(item[1])) for item in data.items(),
         )
         super(PropertyParser, self).write(
             stream.encode(encoding='utf-8'),
