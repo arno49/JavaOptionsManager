@@ -270,7 +270,7 @@ class PropertyParser(TextParser):
     @staticmethod
     def __process_multiline_string(string):
         if len(string.splitlines()) > 1:
-            return "\n   ".join(string.splitlines())
+            return "\n  ".join(string.splitlines())
         return string
 
     def read(self, path):
