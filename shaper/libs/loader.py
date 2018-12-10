@@ -80,3 +80,11 @@ def represent_multi_line(dumper, data):
     if len(data.splitlines()) > 1:  # check for multi line string
         style = '|'
     return dumper.represent_scalar('tag:yaml.org,2002:str', data, style=style)
+
+
+# override default behavior of representing empty string as None object in Jinja2
+# empty string will be returned as empty string (not as None object)
+def represent_none_as_empty_string(value):
+    if value is None:
+        return ""
+    return value

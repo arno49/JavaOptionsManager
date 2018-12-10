@@ -8,6 +8,8 @@ import yaml
 
 from jinja2 import Environment, FileSystemLoader, Undefined
 
+from libs.loader import represent_none_as_empty_string
+
 
 class IgnoreUndefinedAttr(Undefined):  # pylint: disable=too-few-public-methods
     """
@@ -35,6 +37,7 @@ def render_template(template_path, context):
         loader=FileSystemLoader(os.path.dirname(template_path)),
         undefined=IgnoreUndefinedAttr,
     )
+    env.finalize = represent_none_as_empty_string
     env.globals.update(context)
     template = env.get_template(os.path.basename(template_path))
     return template.render()
