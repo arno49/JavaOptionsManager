@@ -282,8 +282,7 @@ class PropertyParser(TextParser):
         try:
             import ConfigParser
         except ImportError:
-            import configparser as ConfigParser
-        # TODO: investigate importing configparser in python 2.X and python 3.X, seems ok to do 'import configparser' instead of 'import ConfigParser' in python 2.X so we can get rid of this try block
+            import configparser as ConfigParser  # TODO: investigate importing configparser in python 2.X and python 3.X, seems ok to do 'import configparser' instead of 'import ConfigParser' in python 2.X so we can get rid of this try block
 
         content = super(PropertyParser, self).read(path)
 
