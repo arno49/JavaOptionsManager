@@ -8,7 +8,7 @@ import yaml
 
 from jinja2 import Environment, FileSystemLoader, Undefined
 
-from libs.loader import represent_none_as_empty_string
+from shaper.libs.loader import represent_none_as_empty_string
 
 
 class IgnoreUndefinedAttr(Undefined):  # pylint: disable=too-few-public-methods
