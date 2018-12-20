@@ -36,7 +36,7 @@ from shaper.renderer import render_template
 from shaper.renderer import merge_templates
 
 
-def parse_arguments():
+def construct_parser():
     parser = argparse.ArgumentParser(
         description='Tool to manage java properties',
     )
@@ -110,11 +110,12 @@ def parse_arguments():
         help='Path to playbook.',
     )
 
-    return parser.parse_args()
+    return parser
 
 
 def main():
-    arguments = parse_arguments()
+    parser = construct_parser()
+    arguments = parser.parse_args()
 
     if arguments.parser == 'play':
         playbook = libs.parser.read(arguments.src_path)
@@ -152,7 +153,7 @@ def main():
         manager.write_properties(datastructure, arguments.out)
 
     else:
-        raise NotImplementedError
+        parser.print_help()
 
 
 if __name__ == '__main__':
