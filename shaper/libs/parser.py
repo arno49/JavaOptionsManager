@@ -310,8 +310,8 @@ class PropertyParser(TextParser):
         """
 
         if data is None:
-            return;
-        
+            return
+
         stream = '\n'.join(
             '{}={}'.format(item[0], self._process_multiline_string(item[1])) for item in data.items()
         )
