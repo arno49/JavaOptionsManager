@@ -110,6 +110,14 @@ def construct_parser():
         help='Path to playbook.',
     )
 
+    play.add_argument(
+        '-o',
+        '--out',
+        dest='out',
+        default='./out/',
+        help='Path to output directory. Default ./out/.',
+    )
+
     return parser
 
 
@@ -127,7 +135,7 @@ def main():
             render_template(os.path.join(template_dir, template), context) for template in templates
         ]
 
-        merge_templates(rendered_templates, template_dir)
+        merge_templates(rendered_templates, arguments.out)
 
     elif arguments.parser == 'read':
         gathered_data = manager.read_properties(arguments.src_path)
