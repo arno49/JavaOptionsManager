@@ -61,11 +61,11 @@ def merge_templates(rendered_templates, out_dir):
 
     :return: None
     """
-    dict_base = {}
+    datastructure = {}
     for var in rendered_templates:
-        dict_base.update(yaml.safe_load(var))
+        datastructure.update(yaml.safe_load(var))
 
-    datastructure = manager.backward_path_parser(dict_base)
+    datastructure = manager.backward_path_parser(datastructure)
     for key in datastructure:
         datastructure[key] = OrderedDict((k, v) for k, v in sorted(datastructure[key].items()))
     manager.write_properties(datastructure, out_dir)
