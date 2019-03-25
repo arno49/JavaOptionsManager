@@ -5,6 +5,7 @@ from __future__ import print_function
 
 import os
 import yaml
+from collections import OrderedDict
 
 from jinja2 import Environment, FileSystemLoader, Undefined
 from . import manager
@@ -56,7 +57,7 @@ def merge_templates(rendered_templates, out_dir):
 
     :param rendered_templates: list of rendered templates to merge
 
-    :param out_dir: path to rendered templates
+    :param out_dir: path to rendered property files
 
     :return: None
     """
@@ -64,6 +65,7 @@ def merge_templates(rendered_templates, out_dir):
     for var in rendered_templates:
         dict_base.update(yaml.safe_load(var))
 
-    manager.create_folders(out_dir)
-    with open(os.path.join(out_dir, 'templates.yaml'), 'w') as _fd:
-        yaml.dump(dict_base, _fd, default_flow_style=False)
+    datastructure = manager.backward_path_parser(dict_base)
+    for key in datastructure:
+        datastructure[key] = OrderedDict((k, v) for k, v in sorted(datastructure[key].items()))
+    manager.write_properties(datastructure, out_dir)
