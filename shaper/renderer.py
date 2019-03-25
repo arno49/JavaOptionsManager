@@ -4,8 +4,8 @@
 from __future__ import print_function
 
 import os
-import yaml
 from collections import OrderedDict
+import yaml
 
 from jinja2 import Environment, FileSystemLoader, Undefined
 from . import manager
